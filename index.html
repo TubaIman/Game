@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>gametaskspace</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+  <div id="board">
+    <div class="child">
+      <div class="container33">
+        <div class="container" id="text">
+          <div class="sub-container">
+            <h2>Spacecraft journey</h2>
+          </div>
+          <div>
+            <button onclick="myfunction()">Start the game</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="jet">
+      <img src="images/rocket.png" width="50px" height="100px">
+    </div>
+    <div id="points">
+      <p>Score:</p>
+      <p id="points1">0</p>
+    </div>
+    <div class="footer" id="foot">
+      <div class="over">
+        <div class="overtext">
+          <!-- <h2>New Record</h2> -->
+          <h2 style="color: rgb(217, 177, 16);">Game Over</h2>
+        </div>
+        <p>Click to Start the game </p>
+        <p></p>
+        <button onclick="myfunction()">Start again</button>
+      </div>
+    </div>
+  </div>
+  <script>
+
+
+    //  display the stating div
+    function myfunction() {
+      let x = document.getElementsByClassName('rocks');
+      let y = document.getElementById('text');
+      if (x) {
+        y.style.display = "none";
+        //  this will generate spaceship
+        var generaterocks = setInterval(() => {
+          var rock = document.createElement("div");
+          rock.classList.add("rocks");           //Just getting the left of the rock to place it in random position...
+          var rockleft = parseInt(
+            window.getComputedStyle(rock).getPropertyValue("left")
+          );
+          rock.style.left = Math.floor(Math.random() * 1100) + "px";
+          board.appendChild(rock);
+        }, 3000);
+        // for movement of spaceships 
+        var moverocks = setInterval(() => {
+          var rocks = document.getElementsByClassName("rocks");
+          if (rocks != undefined) {
+            for (var i = 0; i < rocks.length; i++) {    //Now I have to increase the top of each rock,so that the rocks can move downwards..
+              var rock = rocks[i]; //getting each rock
+              var rocktop = parseInt(
+                window.getComputedStyle(rock).getPropertyValue("top")
+              );
+              // for collision
+              const spaceship = rock.getBoundingClientRect();
+              const jet = invedor.getBoundingClientRect();
+              console.log(invedor.getBoundingClientRect());
+              console.log(rock.getBoundingClientRect());
+              const dx = (spaceship.x + spaceship.width / 2) - (jet.x + jet.width / 2);
+              const dy = (spaceship.y + spaceship.height / 2) - (jet.y + jet.height / 2);
+              const collisionOffset = 10;
+              const collision = Math.abs(dx) < (spaceship.width / 2 + jet.width / 2 - collisionOffset) && Math.abs(dy) < (spaceship.height / 2 + jet.height / 2 + collisionOffset);
+              if (collision) {
+                gameOver();
+              }
+              rock.style.top = rocktop + 30 + "px";
+            }
+          }
+        }, 1500)
+
+        function moveBullets() {
+          bulletList.forEach((bullet, index) => {
+            bullet.style.bottom = (parseInt(bullet.style.bottom) + 15) + 'px';
+            if (parseInt(bullet.style.bottom) > window.innerHeight) {
+              bulletList.splice(index, 1);
+              bullet.remove();
+            }
+
+            var rocks = document.getElementsByClassName("rocks");
+            for (var i = 0; i < rocks.length; i++) {
+              var rock = rocks[i];
+              if (rock != undefined) {
+                var rockbound = rock.getBoundingClientRect();
+                var bulletbound = bullet.getBoundingClientRect();
+                if (     //Condition to check whether the rock/alien and the bullet are at the same position..!
+                  bulletbound.left >= rockbound.left &&
+                  bulletbound.right <= rockbound.right &&
+                  bulletbound.top <= rockbound.top &&
+                  bulletbound.bottom <= rockbound.bottom
+                ) {
+                  rock.parentElement.removeChild(rock); //Just removing that particular rock;
+                  //Scoreboard 
+                  document.getElementById("points1").innerHTML =
+                    parseInt(document.getElementById("points1").innerHTML) + 1;
+                }
+              }
+            };
+
+          });
+          requestAnimationFrame(moveBullets);
+        }
+        requestAnimationFrame(moveBullets);
+
+        const invedor = document.getElementById('jet');
+        const bulletList = [];
+        window.addEventListener("keydown", (e) => {
+          var left = parseInt(
+            window.getComputedStyle(jet).getPropertyValue("left")
+          );
+          var top = parseInt(
+            window.getComputedStyle(jet).getPropertyValue("top")
+          );
+          if (e.key == "ArrowLeft" && left > 0) {
+            jet.style.left = left - 10 + "px";
+          }
+          //1250  =>  board width - jet width
+          else if (e.key == "ArrowRight" && left <= 1110) {
+            jet.style.left = left + 10 + "px";
+          } else if (e.key == "ArrowUp" && top > 0) {
+            jet.style.top = top - 10 + "px";
+          } else if (e.key == "ArrowDown" && top <= 440) {
+            jet.style.top = top + 10 + "px";
+          }
+          if (e.code === 'Space') {
+            e.preventDefault(); // prevent space from being entered into text field
+            const bullet = document.createElement('div');
+            bullet.classList.add('bullet');
+            bullet.style.left = (invedor.offsetLeft - 8 + invedor.offsetWidth / 2 - bullet.offsetWidth / 2) + 'px';
+            bullet.style.bottom = invedor.offsetHeight + 'px';
+            board.appendChild(bullet);
+            bulletList.push(bullet);
+          }
+        }
+        )
+      }
+      // gameover
+      function gameOver() {
+        mylaw();
+        clearInterval(moverocks);
+        clearInterval(generaterocks);
+
+      }
+      function mylaw() {
+        var saq = document.getElementById('foot');
+        if (saq.style.display = "none") {
+          saq.style.display = "block";
+          //  clearInterval(moveBullets) 
+        }
+      }
+    };
+    //  to restart the game
+    function restart(y) {
+      window.location.reload()
+      y.style.display = "none";
+    }
+
+  </script>
+
+</body>
+</html>
